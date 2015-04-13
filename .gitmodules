@@ -1,0 +1,9 @@
+[submodule "submodules/pithos"]
+	path = submodules/pithos
+	url = git@github.com:pithos/pithos.git
+[submodule "submodules/spotipy"]
+	path = submodules/spotipy
+	url = git@github.com:joohoi/spotipy.git
+[submodule "submodules/spotify-local-http-api"]
+	path = submodules/spotify-local-http-api
+	url = git@github.com:synap5e/spotify-local-http-api.git
