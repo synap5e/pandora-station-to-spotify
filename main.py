@@ -127,6 +127,14 @@ def play_songs(songs, stop_event, skip_event, current_song, plays='plays.txt'):
     if plays:
         plays_file.close()
 
+    # Eat all remaining songs. Not a perfect solution and can fail to stop the feeder in a race condition
+    while True:
+        try:
+            songs.get_nowait()
+        except queue.Empty:
+            break
+
+
 def cli_interface(fileno, stop_event, skip_event, feedback, current_song, ups='ups.txt'):
     if ups:
         ups_file = open(ups, 'a+')
@@ -149,16 +157,18 @@ def cli_interface(fileno, stop_event, skip_event, feedback, current_song, ups='u
     def close():
         print('** close')
         stop_event.set()
+        skip_event.set()
     commands = [
         up, down, skip, close
     ]
     while not stop_event.is_set():
         print('commands: [u]p, [d]own, [s]kip, [c]lose')
         command = input().lower()
-        for c in commands:
-            if c.__name__.startswith(command):
-                c()
-                break
+        if command:
+            for c in commands:
+                if c.__name__.startswith(command):
+                    c()
+                    break
     if ups:
         ups_file.close()
 
@@ -172,7 +182,7 @@ if __name__ == '__main__':
     
     manager = multiprocessing.Manager()
 
-    songs        = multiprocessing.Queue(maxsize=prefs.queue_size) # larger = less change of delay, smaller = more responsive to ups/downs
+    songs        = multiprocessing.Queue(maxsize=prefs.queue_size) 
     
     stop_event   = multiprocessing.Event()
     skip_event   = multiprocessing.Event()
